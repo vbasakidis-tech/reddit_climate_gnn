@@ -82,3 +82,19 @@ return {
         ]
     }
 
+    # Fetch a few public posts from a climate-related subreddit
+    subreddit = reddit.subreddit("climatechange")
+
+    for submission in subreddit.new(limit=5):
+        print({
+            "id": submission.id,
+            "title": submission.title,
+            "score": submission.score,
+            "num_comments": submission.num_comments,
+            "created_utc": submission.created_utc
+        })
+
+if __name__ == "__main__":
+    main()
+
+
