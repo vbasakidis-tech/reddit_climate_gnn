@@ -1,0 +1,84 @@
+!pip install praw
+!mamba install pandas
+!pip install openpyxL
+
+client_id="replace"
+client_secret="replace"
+
+import praw
+print(praw._version_)
+
+import pandas as pd
+import openpyxl
+from datatime import datetime, timezone
+
+reddit=praw.reddit(
+    client_id=client_id,
+    client_secret=client_secret,
+    user_agent="examplegnn by u/Similar-Ladder-3209"
+)
+
+url = "....."
+submission=reddit.submission(url=url) 
+  
+#load all comments
+submission.comments.replace_more(limit=none)
+all_comments=submission.comments.list()
+  
+# prepare lists of dicts for dataframe
+data = []
+     for comment in all_comments:
+      data.append({
+          "author":str(comment.author),
+          "score":comment.score,
+          "created_utc":datetime.fromtimestamp(comment.created_utc, timezone.utc).replace(tzinfo=None),
+            "boby":comment.body.replace("\n"," "),
+      })
+for comment in all_comments[0:4]:
+    print(comment.body)
+
+df=pd.dataframe(data)
+df.head()
+
+df.to_csv("data/singe_post_reddit_comments.csv", index=False, encoding="utf-8")
+print(f"saved {len(df)} comments to reddit_comments.csv")
+
+# Cannonica reddit post / This function converts a PRAW Submission into a single ML-ready dict.
+
+def extract_post_card(submission):
+return {
+    "id": submission.id,
+    "permalink":submission.permalink,
+    "created_utc":submission.created_utc,
+
+    "title":submission.title,
+    "selftext":submission.selftext if submission.is_self else None,
+    "url":submission.url if not submission.is_selfe else None,
+    "is_self":submission.is_self,
+    "post_hint":getattr(submission, "post_hint", None)
+
+    "subreddit": submission.subreddit.display_name,
+        "subreddit_id": submission.subreddit_id,
+        "link_flair_text": submission.link_flair_text,
+        "author_flair_text": submission.author_flair_text,
+
+        # Engagement
+        "score": submission.score,
+        "upvote_ratio": submission.upvote_ratio,
+        "num_comments": submission.num_comments,
+
+        # Moderation / filtering
+        "over_18": submission.over_18,
+        "spoiler": submission.spoiler,
+        "locked": submission.locked,
+
+        "crossposts": [
+            {
+                "subreddit": cp["subreddit"],
+                "title": cp["title"],
+                "score": cp["score"]
+            }
+            for cp in getattr(submission, "crosspost_parent_list", []) or []
+        ]
+    }
+
